@@ -1,0 +1,7 @@
+Parser for simple expressions, implemented using =ReadP=.
+
+Supports prefix functions of zero or more arguments, and infix operators.
+An /operator table/ (type =OpTable=) specifies available operators, their precedence and associativity.
+Operators of the same precedence are assumed to have the same associativity.
+
+The parser is parametric in the operator table.
