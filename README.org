@@ -1,9 +1,58 @@
-~exparse~ is a parser for mathematical expressions, implemented using =ReadP=.
-The code was written during a university project at UCPH.
+A parser for mathematical expressions. Supports operators of varying precedence, functions and variables.
 
-The parser supports prefix functions of zero or more arguments, and infix
-operators. An /operator table/ (type =OpTable=) specifies available operators,
-their precedence and associativity. Operators of the same precedence are assumed
-to have the same associativity.
+* Description
+~exparse~ parses expressions made up of integers, variables, prefix functions and infix operators.
 
-The parser is parametric in the operator table.
+The main feature of ~exparse~ is being parametric in a user-specified /operator table/ which specifies the valid operators and their precedence.
+
+For instance, the ~arithmetic~ operator table is defined as follows:
+
+#+begin_src haskell
+arithmetic :: OpTable
+arithmetic =  OpTable [
+  (ANone, ["<=", "<"]),
+  (ALeft, ["+", "-"]),
+  (ALeft, ["*"]),
+  (ARight, ["**"])
+  ]
+#+end_src
+
+The operators are listed in order of precedence, together with their associativity (left, right, or none).
+Thus the above table indicates that ~+~ and ~-~ are left-associative operators with lower precedence than ~*~.
+Accordingly, the string
+
+#+begin_src text
+  x*y+z
+#+end_src
+
+Will be parsed as the expression
+
+#+begin_src haskell
+Right (TFun "+" [TFun "*" [TVar "x",TVar "y"],TVar "z"])
+#+end_src
+
+That is, ~(x*y)+x~.
+
+* Usage
+
+  To use ~exparse interactively~, run ~:load Parser~ in ~ghci~, then call the function 
+  
+  #+begin_src haskell
+  parseStringExpr :: OpTable -> String -> Either ErrMsg Expr
+  #+end_src
+
+  ~Parser.hs~ ships with the ~arithmetic~ operator table defined above, so you can try parsing the string ~x*y+z~ by running
+
+  #+begin_src haskell
+  parseStringExpr arithmetic "x*y+z"
+  #+end_src
+
+  For a more complex example, try:
+
+  #+begin_src haskell
+  parseStringExpr arithmetic "f(x+1) - 3 ** g(y,z)"
+  #+end_src
+
+* Why?
+  ~exparse~ is fairly portable, by virtue of being implemented using ~ReadP~ which is part of the Haskell standard library.
+  It could e.g. be used for a simple computer algebra system à la /MATLAB/.
